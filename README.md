@@ -1,12 +1,4 @@
----
-layout: post
-title: Shortest Path to Learn C++ (and A*) 
-date: 2024-10-27 10:14:00-0400
-description: A brief introduction to C++ by implementing the A* algorithm.
-categories: industry
-giscus_comments: true
-related_posts: false
----
+# The Shortest Path to Learn C++ (and A*): A Brief Recap
 
 C++ has been (and will likely be for at least a bit) a central language in the robotics field. It is a powerful language that is flexible and (relatively) easy to write-in, while also being fast and efficient. In this post, we will implement the A* algorithm in C++ and discuss some of the basics of the language as we go. From a high level, we will complete the following tasks today, and cover the following topics in the process:
 
