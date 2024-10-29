@@ -55,6 +55,9 @@ To start out then, create the following directory structure:
 
 In what follows we will be keeping track of three files: `astar.hpp`, `astar.cpp`, and `main.cpp`.  They will start out empty and we will gradually fill them in.
 
+
+---
+
 <Details markdown="block">
   <summary>The current state of our code files.</summary>
   
@@ -72,6 +75,9 @@ In what follows we will be keeping track of three files: `astar.hpp`, `astar.cpp
 ```
   
 </Details> 
+
+---
+
 
 
 ## The `main` Function
@@ -113,6 +119,9 @@ make
 ```
 Change the `Debug` to `Release` if you want to build a release version of the program. This will create an executable called `planner` in the `build` directory. You can run it by running `./planner` in the terminal.
 
+
+---
+
 <Details markdown="block">
   <summary>The current state of our code files.</summary>
   
@@ -137,6 +146,9 @@ int main(int argc, char** argv)
 ```
   
 </Details> 
+
+---
+
 
 
 ## Setting Up a Debugger in VSCode
@@ -206,6 +218,9 @@ Clicking on the play button runs our program in debug mode  (make sure that your
 
 We can play around with the debugger: create some variables and add some breakpoints in `main.cpp` to see how it works.
 
+
+---
+
 <Details markdown="block">
   <summary>The current state of our code files.</summary>
   
@@ -233,19 +248,27 @@ int main(int argc, char** argv)
   
 </Details> 
 
+---
+
+
 ## Classes, Structs, and Objects
 Let's begin implementing our A* planning algorithm! In this section we'll start setting up the `AStarPlanner` class and the `SearchState` struct which we will us in our implementation and also discuss classes and structs in C++ more generally. 
 
 
 ### `class`es
 A `class` is a user-defined data type that groups related data and functions together. Let's discuss a few features of classes and them put them to work in our A* planner implementation.
+
 * **Member Variables**:
 Member variables are variables that belong to a class. They are declared inside the class definition and can be accessed by any member function of the class. A member variable we care about in A* is the grid we are planning on. We will store this in the `AStarPlanner` class under the name `grid_`. The trailing underscore is a common naming convention for [`private`](#access-modifiers) member variables in C++.
+
 * **Member Functions**:
 Similar to member variables, member functions (also called class methods) are functions that are defined in the class and can access any member of the class. They are used to perform operations on the data stored in the class with potential extra inputs. Our A* planner will have a member function called `plan` that will take a start and goal position and plan a path between them.
+
 * **Constructors and Destructors**:
 Constructors are special member functions that are called when an object of a class is created. They are used to initialize the object's member variables. Destructors are are similar, and are called when an object is destroyed. They are used to clean up resources used by the object. C++ provides a default constructor and destructor if you don't define one yourself. We will store the planning grid in the `AStarPlanner` class in the constructor. We will do this in an initialization list, which is a list of member variables to initialize in the constructor. This is more efficient than initializing the variables in the constructor body.
+
 * **Access Modifiers**:   Access modifiers are keywords that control the visibility of class members. There are three access modifiers in C++: `public`, `private`, and `protected`. Members declared as `public` can be accessed from outside the class, members declared as `private` can only be accessed from within the class, and members declared as `protected` can be accessed from within the class and by derived classes (see the next section for more on this).
+
 * **Inheritance**:
 Inheritance is a feature of C++ that allows you to create a new class that is based on an existing class. Inherited classes (also called derived classes) include all the public and protected members of the base class (also called the parent class). This allows you to reuse code and create a hierarchy of classes. In our implementation, we will create a `Planner` base class and then create a derived class for the A* planner. Per the definition of the base class, all derived-class planners will be required to implement a `plan` function.
 
@@ -308,6 +331,9 @@ struct SearchState
 
 The state of our code now, with the `Planner` and `AStarPlanner` classes and the `SearchState` struct defined, is as follows:
 
+
+
+---
 
 <Details markdown="block">
   <summary>The current state of our code files.</summary>
@@ -382,6 +408,9 @@ int main(int argc, char** argv)
   
 </Details> 
 
+---
+
+
 
 ## Functions
 As we get ready to define the member functions of our A* algorithm, it's worth mentioning some features of functions in C++.
@@ -398,6 +427,7 @@ As we get ready to define the member functions of our A* algorithm, it's worth m
         return a + b;
     }
     ```
+
 * **Default Arguments**: You can provide default values for function parameters. If a value is not provided when the function is called, the default value will be used.
     ```cpp
     int add(int a, int b = 0)
@@ -405,6 +435,7 @@ As we get ready to define the member functions of our A* algorithm, it's worth m
         return a + b;
     }
     ```
+
 * **Operator Overloading**: C++ allows you to redefine the behavior of operators for user-defined types. This is called operator overloading. For example, in our implementation we will define the `<` operator for the `SearchState` struct to compare states based on their `f` values. (We negate the f-values to make the priority queue, which is normally a max-heap, a min-heap.)
     ```cpp
     bool operator<(const SearchState& other) const
@@ -413,7 +444,9 @@ As we get ready to define the member functions of our A* algorithm, it's worth m
     }
     ```
     Note that the `const` keyword at the end of the function declaration means that the function does not modify the object it is called on. The "const reference" `other` is explained next.
+
 * **Passing Arguments**: function arguments can be passed in a few ways: by value, by reference, and by pointer. 
+    
     * **Pass by value**: The default is by value, which means that a copy of the object is passed to the function. 
         ```cpp
         void foo(std::vector<int> v)
@@ -422,6 +455,7 @@ As we get ready to define the member functions of our A* algorithm, it's worth m
             v.push_back(1);
         }
         ```
+    
     * **Pass by reference**: When you pass a variable by reference, you are passing the memory address of the variable instead of the value. This is more efficient than passing by value, as the entire object is not copied. 
         ```cpp
         void foo(std::vector<int>& v)
@@ -501,6 +535,9 @@ In fact, since we will be making use of this pointer quite a bit, we'll create a
 ```cpp
 using SearchStatePtr = std::shared_ptr<SearchState>;
 ```
+
+
+---
 
 <Details markdown="block">
   <summary>The current state of our code files.</summary>
@@ -618,10 +655,15 @@ int main(int argc, char** argv) {
 
 ## The Standard Library: Useful Objects
 We are almost ready to implement the logic of the A* algorithm. We are only missing the OPEN and CLOSED lists. Conceptually, there are various data structures that we could use to achieve different goals. Between lists, sets, heaps, and trees, we have a lot of options. 
+
 * **Lists** are like simple containers -- they hold elements nicely, but are not ideal if we want to repeatedly sort their elements or check if elements are present.
+
 * **Sets** are unordered but have fast lookup times. These are often implemented as hash tables. 
+
 * **Maps** are similar to sets, but they store key-value pairs. Getting the value associated with a key is done in constant time and checking if a key is in the map is also done in constant time.
+
 * **Heaps** allow us to access the element with the highest priority in constant time and insert new elements in logarithmic time. 
+
 * **Trees** allow for fast (but not constant time) search while preserving order.
 
 This section will discuss the C++ counterparts for these data structures and how we can use them in our implementation. Specifically, we will cover the relevant objects from the C++ standard library 
@@ -757,6 +799,9 @@ namespace std {
 ...
 ```
 
+
+---
+
 <Details markdown="block">
   <summary>The current state of our code files.</summary>
 
@@ -887,6 +932,7 @@ int main(int argc, char** argv) {
 
 ## A Note on `for` Loops
 In C++, there are a few ways to iterate over a collection of elements. The most common way is to use a one of the following `for` loops:
+
 * **Range-based `for` loop**: This is a simple and clean way to iterate over a collection of elements. It is especially useful when you want to iterate over all elements in a collection. The syntax is as follows:
     ```cpp
     std::vector<int> v = {1, 2, 3, 4, 5};
@@ -903,6 +949,7 @@ In C++, there are a few ways to iterate over a collection of elements. The most 
         std::cout << *it << std::endl;
     }
     ```
+
 * **`for` loop with index**: If you need to access the index of an element in a collection, you can use a `for` loop with an index. The syntax is as follows:
     ```cpp
     std::vector<int> v = {1, 2, 3, 4, 5};
@@ -910,6 +957,7 @@ In C++, there are a few ways to iterate over a collection of elements. The most 
         std::cout << v[i] << std::endl;
     }
     ```
+
 * **`for_each` algorithm**: The `std::for_each` algorithm is a standard library algorithm that applies a function to each element in a collection. The syntax is as follows:
     ```cpp
     std::vector<int> v = {1, 2, 3, 4, 5};
@@ -1046,3 +1094,5 @@ Path AStarPlanner::plan(Position start, Position goal) {
 * The Standard Library: Algorithms
 * Lambda functions
 * And more and more :).
+
+**Use of LLMs**: GitHub Copilot was active when writing this post, so, as always when using LLMs, there is a plagiarism concern. Please let me know if this text looks similar to anything previously published and I'll make sure to add the appropriate citations.
