@@ -1,6 +1,7 @@
 # The Shortest Path to Learn C++ (and A*): A Brief Recap
 
-C++ has been (and will likely be for at least a bit) a central programming language in robotics. It is a powerful language that is flexible and (relatively) easy to write-in, while also being fast and efficient. This posts comes to serve as a brief recap/summary/cheatsheet of some of the basics of C++ programming. We will be implementing the A* algorithm and discussing relevant C++ elements as we go.
+C++ has been (and will likely be for at least a bit) a central programming language in robotics. It is a powerful language that is flexible and (relatively) easy to write-in, while also being fast and efficient. This post
+ comes to serve as a brief recap/summary/cheatsheet of some of the basics of C++ programming. We will be implementing the A* algorithm and discussing relevant C++ elements as we go.
 
 From a high level, we will complete the following tasks today, and cover the following topics in the process:
 
