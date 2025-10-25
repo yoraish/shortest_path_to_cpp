@@ -25,14 +25,17 @@ struct SearchState {
     int f;
     Position pos;
     std::shared_ptr<SearchState> parent;
-
-    bool operator<(const SearchState& rhs) const {
-        // To accommodate the priority queue, which is a max heap by default.
-        return -f < -rhs.f;
-    }
 };
 
 using SearchStatePtr = std::shared_ptr<SearchState>;
+
+// Comparator for search state pointer.
+struct SearchStatePtrComparator {
+    bool operator()(const SearchStatePtr& lhs, const SearchStatePtr& rhs) const {
+        // Returns true if lhs should be popped before rhs.
+        return lhs->f > rhs->f;
+    }
+};
 
 class Planner {
 public:
@@ -45,7 +48,7 @@ class AStarPlanner : public Planner {
 private:
     // Variables.
     std::vector<std::vector<int>> grid_;
-    std::priority_queue<SearchStatePtr> open_;
+    std::priority_queue<SearchStatePtr, std::vector<SearchStatePtr>, SearchStatePtrComparator> open_;
     std::unordered_set<Position> closed_;
     
     // Methods.

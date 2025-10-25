@@ -427,6 +427,14 @@ As we get ready to define the member functions of our A* algorithm, it's worth m
         return a + b;
     }
     ```
+    If we wanted to compare the f-values of two `SearchState` objects, for example, we could overload the `<` operator in the struct itself.
+    ```cpp
+    bool operator<(const SearchState& other) const
+    {
+        return -f < -other.f;
+    }
+    ```
+    We won't do it here today though since we will be working with pointers.
 
 * **Default Arguments**: You can provide default values for function parameters. If a value is not provided when the function is called, the default value will be used.
     ```cpp
@@ -436,12 +444,15 @@ As we get ready to define the member functions of our A* algorithm, it's worth m
     }
     ```
 
-* **Operator Overloading**: C++ allows you to redefine the behavior of operators for user-defined types. This is called operator overloading. For example, in our implementation we will define the `<` operator for the `SearchState` struct to compare states based on their `f` values. (We negate the f-values to make the priority queue, which is normally a max-heap, a min-heap.)
+* **Custom Comparators**: When using `std::priority_queue` with custom types, we need to provide a way to compare elements. We create a dedicated comparator struct that tells the priority queue how to order elements based on their `f` values.
+
     ```cpp
-    bool operator<(const SearchState& other) const
-    {
-        return -f < -other.f;
-    }
+    struct SearchStatePtrComparator {
+        bool operator()(const std::shared_ptr<SearchState>& lhs, const std::shared_ptr<SearchState>& rhs) const {
+            // Returns true if lhs should be popped before rhs.
+            return lhs->f > rhs->f;
+        }
+    };
     ```
     Note that the `const` keyword at the end of the function declaration means that the function does not modify the object it is called on. The "const reference" `other` is explained next.
 
@@ -534,6 +545,14 @@ In fact, since we will be making use of this pointer quite a bit, we'll create a
 
 ```cpp
 using SearchStatePtr = std::shared_ptr<SearchState>;
+
+// Comparator for search state pointer.
+struct SearchStatePtrComparator {
+    bool operator()(const SearchStatePtr& lhs, const SearchStatePtr& rhs) const {
+        // Returns true if lhs should be popped before rhs.
+        return lhs->f > rhs->f;
+    }
+};
 ```
 
 
@@ -560,14 +579,17 @@ struct SearchState {
     int f;
     Position pos;
     std::shared_ptr<SearchState> parent;
-
-    bool operator<(const SearchState& rhs) const {
-        // To accommodate the priority queue, which is a max heap by default.
-        return -f < -rhs.f;
-    }
 };
 
 using SearchStatePtr = std::shared_ptr<SearchState>;
+
+// Comparator for search state pointer.
+struct SearchStatePtrComparator {
+    bool operator()(const SearchStatePtr& lhs, const SearchStatePtr& rhs) const {
+        // Returns true if lhs should be popped before rhs.
+        return lhs->f > rhs->f;
+    }
+};
 
 class Planner {
 public:
@@ -715,10 +737,10 @@ Checking if an element is in an unordered set can be done in constant time.
 
 
 * **`std::priority_queue`**:
-A priority queue is a data structure that stores elements in a sorted order. When elements are added to the queue, they are placed in the correct position based on their priority. The element with the highest priority is at the front of the queue. In our implementation, we will use a priority queue to store the open list of states to explore. The priority queue will make use of the `<` operator we defined for the `SearchState` struct to order the states based on their `f` values.
+A priority queue is a data structure that stores elements in a sorted order. When elements are added to the queue, they are placed in the correct position based on their priority. The element with the highest priority is at the front of the queue. In our implementation, we will use a priority queue to store the open list of states to explore. The priority queue uses a custom comparator to order the states based on their `f` values.
 
     ```cpp
-    std::priority_queue<SearchStatePtr> open_list;
+    std::priority_queue<SearchStatePtr, std::vector<SearchStatePtr>, SearchStatePtrComparator> open_list;
     ```
 
     We can access the element with the highest priority in constant time with the `top` method. We can add elements to the queue with the `push` method and remove elements with the `pop` method.
@@ -794,7 +816,7 @@ namespace std {
 }
 
 ...
-    std::priority_queue<SearchStatePtr> open_;
+    std::priority_queue<SearchStatePtr, std::vector<SearchStatePtr>, SearchStatePtrComparator> open_;
     std::unordered_set<Position> closed_;
 ...
 ```
@@ -836,14 +858,17 @@ struct SearchState {
     int f;
     Position pos;
     std::shared_ptr<SearchState> parent;
-
-    bool operator<(const SearchState& rhs) const {
-        // To accommodate the priority queue, which is a max heap by default.
-        return -f < -rhs.f;
-    }
 };
 
 using SearchStatePtr = std::shared_ptr<SearchState>;
+
+// Comparator for search state pointer.
+struct SearchStatePtrComparator {
+    bool operator()(const SearchStatePtr& lhs, const SearchStatePtr& rhs) const {
+        // Returns true if lhs should be popped before rhs.
+        return lhs->f > rhs->f;
+    }
+};
 
 class Planner {
 public:
@@ -856,7 +881,7 @@ class AStarPlanner : public Planner {
 private:
     // Variables.
     std::vector<std::vector<int>> grid_;
-    std::priority_queue<SearchStatePtr> open_;
+    std::priority_queue<SearchStatePtr, std::vector<SearchStatePtr>, SearchStatePtrComparator> open_;
     std::unordered_set<Position> closed_;
     
     // Methods.
